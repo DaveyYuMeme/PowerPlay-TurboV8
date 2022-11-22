@@ -1,4 +1,9 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.paths;
+
+import org.firstinspires.ftc.teamcode.Vec;
+import org.firstinspires.ftc.teamcode.utils.SumUtil;
+
+import org.firstinspires.ftc.teamcode.paths.components.*;
 
 import java.lang.Exception;
 

@@ -7,6 +7,14 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
+import org.firstinspires.ftc.teamcode.managers.TimeManager;
+import org.firstinspires.ftc.teamcode.wrappers.DcMotorWrapper;
+import org.firstinspires.ftc.teamcode.wrappers.GamepadWrapper;
+import org.firstinspires.ftc.teamcode.wrappers.MecanumWrapper;
+import org.firstinspires.ftc.teamcode.wrappers.OdometryWrapper;
+import org.firstinspires.ftc.teamcode.wrappers.PIDWrapper;
+import org.firstinspires.ftc.teamcode.wrappers.ServoWrapper;
+
 @Autonomous
 public class AutonomousV1 extends LinearOpMode {
   // Control Hub Motors

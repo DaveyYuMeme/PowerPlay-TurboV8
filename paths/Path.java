@@ -1,4 +1,6 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.paths;
+
+import org.firstinspires.ftc.teamcode.Vec;
 
 public class Path {
   private Sampler positionSampler;

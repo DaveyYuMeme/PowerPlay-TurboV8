@@ -1,4 +1,6 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.paths.components;
+
+import org.firstinspires.ftc.teamcode.Vec;
 
 public interface Component {
   public int getDim();

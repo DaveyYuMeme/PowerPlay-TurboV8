@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.wrappers;
 
 import java.util.ArrayList;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -49,6 +49,13 @@ public class OdometryWrapper {
   
   public OdometryWrapper setFrontEncoder(DcMotor encoder) {
     this._frontEncoder = encoder;
+    encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    encoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    return this;
+  }
+
+  public OdometryWrapper setBackEncoder(DcMotor encoder) {
+    this._rightEncoder = encoder;
     encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     encoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     return this;

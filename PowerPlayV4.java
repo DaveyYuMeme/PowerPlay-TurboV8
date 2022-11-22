@@ -3,83 +3,158 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
+
+import org.firstinspires.ftc.teamcode.managers.TimeManager;
+import org.firstinspires.ftc.teamcode.wrappers.DcMotorWrapper;
+import org.firstinspires.ftc.teamcode.wrappers.GamepadWrapper;
+import org.firstinspires.ftc.teamcode.wrappers.MecanumWrapper;
+import org.firstinspires.ftc.teamcode.wrappers.OdometryWrapper;
+import org.firstinspires.ftc.teamcode.wrappers.PIDWrapper;
+import org.firstinspires.ftc.teamcode.wrappers.ServoWrapper;
 
 @TeleOp
 public class PowerPlayV4 extends LinearOpMode {
+
   // Control Hub Motors
-  private DcMotorWrapper frontLeft;
-  private DcMotorWrapper linSlide;
+  public DcMotorWrapper frontLeft;
+  public DcMotorWrapper linSlide;
 
   // Control Hub Servos
-  private ServoWrapper deposit;
-  private ServoWrapper linearServo;
-  private ServoWrapper clawServo2;
-  private ServoWrapper clawServo1;
-  private ServoWrapper frontArm;
-  
+  public ServoWrapper deposit;
+  public ServoWrapper linearServo;
+  //private ServoWrapper clawServo2;
+  public ServoWrapper clawServo;
+  public ServoWrapper frontArm;
+
   // Expansion Hub Motors
-  private DcMotorWrapper frontRight;
-  private DcMotorWrapper backRight;
-  private DcMotorWrapper backLeft;
-  private DcMotorWrapper turret;
-  
+  public DcMotorWrapper frontRight;
+  public DcMotorWrapper backRight;
+  public DcMotorWrapper backLeft;
+  public DcMotorWrapper turret;
+
   // Expansion Hub Servos
-  private ServoWrapper rightArm;
-  private ServoWrapper leftArm;
+  public ServoWrapper rightArm;
+  public ServoWrapper leftArm;
 
   // Expansion Hub Digital Sensors
-  private TouchSensor leftTouchSensor;
-  private TouchSensor rightTouchSensor;
+  public TouchSensor leftTouchSensor;
+  public TouchSensor rightTouchSensor;
 
   // Gamepad Wrappers
-  private GamepadWrapper gamepad1Wrapper;
+  public GamepadWrapper gamepad1Wrapper;
+  public GamepadWrapper gamepad2Wrapper;
 
   // Meta
-  private TimeManager timeManager;
+  public TimeManager timeManager;
 
   // Drivetrain Wrappers
-  private MecanumWrapper mecanumWrapper;
-  private OdometryWrapper odometryWrapper;
+  public MecanumWrapper mecanumWrapper;
+  public OdometryWrapper odometryWrapper;
 
   // Control Parameters
-  private double armLowerBound = 0.5;
-  private double armUpperBound = 0.82;
-  private double clawLowerBound = 0.5;
-  private double clawUpperBound = 0.87;
-  private double frontArmLowerBound = 0.5;
-  private double frontArmUpperBound = 0.95;
-  private int linSlideLowerBound = -0;
-  private int linSlideUpperBound = -900;
-  private double linSlidePower = 0.8;
-  private double depositLowerBound = 0.5;
-  private double depositUpperBound = 0.9;
-  private int turretLowerBound = 0;
-  private int turretUpperBound = 100;
-  private double linearServoLowerBound = 0.1;
-  private double linearServoUpperBound = 0.9;
+  public double armLowerBound = 0.5;
+  public double armUpperBound = 0.82;
+  public double clawLowerBound = 1;
+  public double clawUpperBound = 0.5;
+  public double frontArmLowerBound = 0.04;
+  public double frontArmUpperBound = 0.82;
+  public int linSlideLowerBound = 0;
+  public int linSlideUpperBound = 1130;
+  public double linSlidePower = 0.8;
+  public double depositLowerBound = 0.5;
+  public double depositUpperBound = 0.9;
+  public int turretLowerBound = 0;
+  public int turretUpperBound = 100;
+  public double linearServoLowerBound = 0.1;
+  public double linearServoUpperBound = 0.9;
+
+  public double frontLeftPower = 0;
+  public double backLeftPower = 0;
+  public double frontRightPower = 0;
+  public double backRightPower = 0;
 
   // Odometry Parameters
-  private double inchesToTicks = 1901.86;
-  private double degreesToTicks = 100;
-  private double trackWidth = 11.25;
-  private double forwardOffset = 5.35;
-  
+  public double inchesToTicks = 1901.86;
+  public double degreesToTicks = 100;
+  public double trackWidth = 11.25;
+  public double forwardOffset = 5.35;
+
   // Position Parameters
-  private double[] armPositions = { 0.0, 0.5, 1.0 };
-  private int armPosition = 0;
-  private double[] clawPositions = { 0.0, 1.0 };
-  private int clawPosition = 0;
-  private double[] frontArmPositions = { 0.0, 1.0 };
-  private int frontArmPosition = 0;
-  private double[] linSlidePositions = { 0.0, 0.33, 0.67, 1.0 };
-  private int linSlidePosition = 0;
-  private double[] depositPositions = { 0.0, 0.5, 1.0 };
-  private int depositPosition = 0;
-  private double[] linearServoPositions = { 0.0, 1.0 };
-  private int linearServoPosition = 0;
-  
+  public double[] armPositions = { 0.0, 0.5, 1.0 };
+  public int armPosition = 0;
+  public double[] clawPositions = { 0.0, 1.0 };
+  public int clawPosition = 0;
+  public double[] frontArmPositions = { 0.0, 1.0 };
+  public int frontArmPosition = 0;
+  public double[] linSlidePositions = { 0.0, 0.33, 0.67, 1.0 };
+  public int linSlidePosition = 0;
+  public double[] depositPositions = { 0.0, 0.5, 1.0 };
+  public int depositPosition = 0;
+  public double[] linearServoPositions = { 0.0, 1.0 };
+  public int linearServoPosition = 0;
+
+  //other funnies
+  boolean IntakeOn = false;
+  double speedScale = 1;
+  boolean ClawOpen = false;
+
+  //Async Functions
+  Async LinSlideUp;
+  Async LinSlideDown;
+  Async DepositDown;
+  Async DepositUp;
+  Async DepositDump;
+
+  Async TurretCenter;
+  Async TurretToLastPos;
+
+  // Async async = new Async(async ->{});
+
+  Async clawOpen = new Async(async -> {
+    clawServo.setPosition(clawUpperBound);
+    async.finish();
+  });
+
+  Async clawClose  = new Async(async -> {
+    clawServo.setPosition(clawLowerBound);
+    async.finish();
+  });
+
+  Async IntakeUp = new Async(async ->{
+    frontArm.setPosition(frontArmUpperBound);//test
+    async.finish();
+  });
+
+  Async IntakeDown = new Async(async ->{
+    frontArm.setPosition(frontArmLowerBound);//test
+    async.finish();
+  });
+
+  Async IntakeIn = new Async(async ->{
+    leftArm.setPosition(armLowerBound);
+    rightArm.setPosition(armUpperBound);//test
+    async.finish();
+  });
+
+  Async IntakeOut = new Async(async ->{
+    leftArm.setPosition(armUpperBound);
+    rightArm.setPosition(armLowerBound);//test
+    async.finish();
+  });
+
+  Async IntakeMode = new Async(async -> {
+    clawOpen.execute();
+    IntakeUp.execute();
+    async.finish();
+  });
+
+  Async Intake = new Async(async -> {
+
+    //ethan im kinda screwed here can you like do this for me
+    async.finish();
+  });
+
   private void initControlHub() {
     telemetry.addData("Status", "Initializing Control Hub");
     telemetry.update();
@@ -91,6 +166,11 @@ public class PowerPlayV4 extends LinearOpMode {
       .setUpperBound(this.linSlideUpperBound)
       .setPower(this.linSlidePower);
 
+    this.frontLeft = new DcMotorWrapper()
+            .setDcMotor(hardwareMap.dcMotor.get("FrontLeft"), false);
+    this.backRight = new DcMotorWrapper()
+            .setDcMotor(hardwareMap.dcMotor.get("BackRight"), false);
+
     // Get servos
     this.deposit     = new ServoWrapper()
       .setServo(hardwareMap.servo.get("Deposit"))
@@ -100,18 +180,15 @@ public class PowerPlayV4 extends LinearOpMode {
       .setServo(hardwareMap.servo.get("LinearServo"))
       .setLowerBound(this.linearServoLowerBound)
       .setUpperBound(this.linearServoUpperBound);
-    this.clawServo1  = new ServoWrapper()
+    this.clawServo  = new ServoWrapper()
       .setServo(hardwareMap.servo.get("ClawServo1"))
       .setLowerBound(1.0 - this.clawLowerBound)
       .setUpperBound(1.0 - this.clawUpperBound);
-    this.clawServo2  = new ServoWrapper()
-      .setServo(hardwareMap.servo.get("ClawServo2"))
-      .setLowerBound(this.clawLowerBound)
-      .setUpperBound(this.clawUpperBound);
     this.frontArm    = new ServoWrapper()
-      .setServo(hardwareMap.servo.get("FrontArm"))
-      .setLowerBound(this.frontArmLowerBound)
-      .setUpperBound(this.frontArmUpperBound);
+      .setServo(hardwareMap.servo.get("FrontArm"));
+
+//      .setLowerBound(this.frontArmLowerBound)
+//      .setUpperBound(this.frontArmUpperBound);
     
     telemetry.addData("Status", "Initialized Control Hub");
     telemetry.update();
@@ -124,6 +201,11 @@ public class PowerPlayV4 extends LinearOpMode {
     // Get motors
     this.turret     = new DcMotorWrapper()
       .setDcMotor(hardwareMap.dcMotor.get("Turret"), false);
+
+    this.frontRight = new DcMotorWrapper()
+            .setDcMotor(hardwareMap.dcMotor.get("FrontRight"));
+    this.backLeft= new DcMotorWrapper()
+            .setDcMotor(hardwareMap.dcMotor.get("BackLeft"));
     
     // Get servos
     this.leftArm  = new ServoWrapper()
@@ -150,44 +232,62 @@ public class PowerPlayV4 extends LinearOpMode {
     // Get gamepad1
     this.gamepad1Wrapper = new GamepadWrapper()
       .setGamepad(gamepad1);
-    
-    this.gamepad1Wrapper.subscribeXPressedEvent(() -> {
-      this.linearServoPosition = (this.linearServoPosition + 1) % this.linearServoPositions.length;
-      this.linearServo.setPosition(this.linearServoPositions[this.linearServoPosition]);
-      return false;
-    });
-    
-    this.gamepad1Wrapper.subscribeYPressedEvent(() -> {
-      this.depositPosition = (this.depositPosition + 1) % this.depositPositions.length;
-      this.deposit.setPosition(this.depositPositions[this.depositPosition]);
-      return false;
-    });
-    
-    this.gamepad1Wrapper.subscribeAPressedEvent(() -> {
-      this.armPosition = (this.armPosition + 1) % this.armPositions.length;
-      this.leftArm.setPosition(this.armPositions[this.armPosition]);
-      this.rightArm.setPosition(this.armPositions[this.armPosition]);
-      return false;
-    });
-    
-    this.gamepad1Wrapper.subscribeBPressedEvent(() -> {
-      this.clawPosition = (this.clawPosition + 1) % this.clawPositions.length;
-      this.clawServo1.setPosition(this.clawPositions[this.clawPosition]);
-      this.clawServo2.setPosition(this.clawPositions[this.clawPosition]);
-      return false;
-    });
+
     
     this.gamepad1Wrapper.subscribeDPressedEvent(() -> {
-      this.frontArmPosition = (this.frontArmPosition + 1) % this.frontArmPositions.length;
-      this.frontArm.setPosition(this.frontArmPositions[this.frontArmPosition]);
-      return false;
+        IntakeIn.execute();
+        return false;
     });
     
     this.gamepad1Wrapper.subscribeUPressedEvent(() -> {
-      this.linSlidePosition = (this.linSlidePosition + 1) % this.linSlidePositions.length;
-      this.linSlide.setPosition(this.linSlidePositions[this.linSlidePosition]);
+        IntakeDown.execute();
       return false;
     });
+
+
+
+    // Gamepad 2
+//    this.gamepad2Wrapper = new GamepadWrapper()
+//            .setGamepad(gamepad2);
+//
+//    this.gamepad2Wrapper.subscribeXPressedEvent(() -> {
+//      this.linearServoPosition = (this.linearServoPosition + 1) % this.linearServoPositions.length;
+//      this.linearServo.setPosition(this.linearServoPositions[this.linearServoPosition]);
+//      return false;
+//    });
+//
+//    this.gamepad2Wrapper.subscribeYPressedEvent(() -> {
+//      this.depositPosition = (this.depositPosition + 1) % this.depositPositions.length;
+//      this.deposit.setPosition(this.depositPositions[this.depositPosition]);
+//      return false;
+//    });
+//
+//    this.gamepad2Wrapper.subscribeAPressedEvent(() -> {
+//      this.armPosition = (this.armPosition + 1) % this.armPositions.length;
+//      this.leftArm.setPosition(this.armPositions[this.armPosition]);
+//      this.rightArm.setPosition(this.armPositions[this.armPosition]);
+//      return false;
+//    });
+
+
+
+//    this.gamepad2Wrapper.subscribeBPressedEvent(() -> {
+//      this.clawPosition = (this.clawPosition + 1) % this.clawPositions.length;
+//      this.clawServo.setPosition(this.clawPositions[this.clawPosition]);
+//      return false;
+//    });
+//
+//    this.gamepad2Wrapper.subscribeDPressedEvent(() -> {
+//      this.frontArmPosition = (this.frontArmPosition + 1) % this.frontArmPositions.length;
+//      this.frontArm.setPosition(this.frontArmPositions[this.frontArmPosition]);
+//      return false;
+//    });
+//
+//    this.gamepad2Wrapper.subscribeUPressedEvent(() -> {
+//      this.linSlidePosition = (this.linSlidePosition + 1) % this.linSlidePositions.length;
+//      this.linSlide.setPosition(this.linSlidePositions[this.linSlidePosition]);
+//      return false;
+//    });
 
     telemetry.addData("Status", "Initialized Gamepads");
     telemetry.update();
@@ -271,8 +371,7 @@ public class PowerPlayV4 extends LinearOpMode {
 
     // Initialize Control Hub servo positions
     this.deposit.setPosition(this.depositPositions[this.depositPosition]);
-    this.clawServo1.setPosition(this.clawPositions[this.clawPosition]);
-    this.clawServo2.setPosition(this.clawPositions[this.clawPosition]);
+    this.clawServo.setPosition(this.clawPositions[this.clawPosition]);
     this.frontArm.setPosition(this.frontArmPositions[this.frontArmPosition]);
     
     // Initialize Expansion Hub servo positions
@@ -296,6 +395,10 @@ public class PowerPlayV4 extends LinearOpMode {
     this.initMeta();
     this.initProcesses();
     this.initPositions();
+
+    //Insert Initalize Positions Here
+    leftArm.setPosition(0.5);
+    rightArm.setPosition(0.5);
     
     telemetry.addData("Status", "Initialized all");
     telemetry.update();
@@ -308,8 +411,8 @@ public class PowerPlayV4 extends LinearOpMode {
     // Control Hub servos
     this.deposit.update();
     this.linearServo.update();
-    this.clawServo1.update();
-    this.clawServo2.update();
+    this.clawServo.update();
+//    this.clawServo2.update();
     this.frontArm.update();
     
     // Expansion Hub motors
@@ -334,7 +437,7 @@ public class PowerPlayV4 extends LinearOpMode {
     this.mecanumWrapper.setPowerX(0.7 * gamepad1.left_stick_x);
     this.mecanumWrapper.setPowerY(-0.7 * gamepad1.left_stick_y * 1.1);
     this.mecanumWrapper.setPowerR(-0.5 * gamepad1.right_stick_x);
-    this.turret.getDcMotor().setPower(0.7 * (gamepad1.left_trigger - gamepad1.right_trigger));
+    this.turret.getDcMotor().setPower(0.7 * (gamepad2.left_trigger - gamepad2.right_trigger));
   }
 
   private void displayStats() {
@@ -347,7 +450,61 @@ public class PowerPlayV4 extends LinearOpMode {
     telemetry.addData("LinSlide raw encoder position", this.linSlide.getDcMotor().getCurrentPosition());
     telemetry.update();
   }
-  
+
+  private void controls() {
+//    if (gamepad1.b) {
+//
+//    }
+    if (gamepad1.x) {
+      if(IntakeOn){
+        IntakeOut.execute();
+        IntakeOn = true;
+      }
+      else{
+        IntakeIn.execute();
+        IntakeOn = false;
+      }
+    }
+
+//    if (gamepad1.y) {
+//      leftArm.setPosition(1-armUpperBound);
+//      rightArm.setPosition(armUpperBound);
+//    }
+
+    if (gamepad1.dpad_right){
+      speedScale += 0.05;
+    }
+    if (gamepad1.dpad_left){
+      speedScale -= 0.05;
+    }
+
+    frontLeftPower = gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x;
+    backLeftPower = gamepad1.left_stick_y + gamepad1.left_stick_x - gamepad1.right_stick_x;
+    backRightPower = gamepad1.left_stick_y + gamepad1.left_stick_x + gamepad1.right_stick_x;
+    frontRightPower = gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x;
+
+    frontLeft.setPower(frontLeftPower * speedScale);
+    backLeft.setPower(backLeftPower * speedScale);
+    frontRight.setPower(frontRightPower * speedScale);
+    backRight.setPower(backRightPower * speedScale);
+
+    //frontArm.setPosition(frontArm.getPosition() + (gamepad1.right_trigger - gamepad1.left_trigger) * 0.6);
+    leftArm.setPosition(leftArm.getPosition() + gamepad1.right_trigger - gamepad1.left_trigger);
+    rightArm.setPosition(rightArm.getPosition() - gamepad1.right_trigger + gamepad1.left_trigger);
+
+    if (gamepad1.right_bumper) {
+      if(ClawOpen){
+        clawClose.execute();
+        ClawOpen = false;
+      }
+      else{
+        clawOpen.execute();
+        ClawOpen = true;
+      }
+
+    }
+  }
+
   @Override
   public void runOpMode() throws InterruptedException {
     this.initAll();
@@ -357,6 +514,7 @@ public class PowerPlayV4 extends LinearOpMode {
       this.displayStats();
       this.interact();
       this.updateAll();
+      this.controls();
     }
   }
 }

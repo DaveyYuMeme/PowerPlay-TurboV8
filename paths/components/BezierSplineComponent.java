@@ -1,4 +1,7 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.paths.components;
+
+import org.firstinspires.ftc.teamcode.Vec;
+import org.firstinspires.ftc.teamcode.utils.SumUtil;
 
 public class BezierSplineComponent implements Component {
   private Vec[] points;

@@ -1,6 +1,11 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.wrappers;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+
+import org.firstinspires.ftc.teamcode.Async;
+import org.firstinspires.ftc.teamcode.managers.EventManager;
+import org.firstinspires.ftc.teamcode.utils.MathUtil;
+import org.firstinspires.ftc.teamcode.managers.TimeManager;
 
 public class DcMotorWrapper {
   private static TimeManager timeManager;
