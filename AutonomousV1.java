@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.teamcode.managers.TimeManager;
 import org.firstinspires.ftc.teamcode.wrappers.DcMotorWrapper;
 import org.firstinspires.ftc.teamcode.wrappers.GamepadWrapper;
@@ -16,6 +17,22 @@ import org.firstinspires.ftc.teamcode.wrappers.MecanumWrapper;
 import org.firstinspires.ftc.teamcode.wrappers.OdometryWrapper;
 import org.firstinspires.ftc.teamcode.wrappers.PIDWrapper;
 import org.firstinspires.ftc.teamcode.wrappers.ServoWrapper;
+
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.SleeveDetection;
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvCameraRotation;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
+
+
+import org.firstinspires.ftc.teamcode.SleeveDetection;
 
 @Autonomous
 public class AutonomousV1 extends LinearOpMode {
@@ -50,6 +67,12 @@ public class AutonomousV1 extends LinearOpMode {
   // Meta
   private TimeManager timeManager;
 
+  //Camera Shenanigans
+  SleeveDetection sleeve;
+  OpenCvCamera camera;
+  private String webcamName = "Webcam 1";
+  volatile SleeveDetection.ParkingPosition position = SleeveDetection.ParkingPosition.LEFT;
+
   //IMU
   private BNO055IMU imu;
 
@@ -72,7 +95,7 @@ public class AutonomousV1 extends LinearOpMode {
   private double depositLowerBound = 0.53;
   private double depositUpperBound = 0.98;
   private int turretLowerBound = 0;
-  private int turretUpperBound = 2100;
+  private int turretUpperBound = 2150;
   private double turretPower = 0.8;
   private double linearServoLowerBound = 0.1;
   private double linearServoUpperBound = 0.9;
@@ -85,12 +108,12 @@ public class AutonomousV1 extends LinearOpMode {
 
   // Position Parameters
   private double[] armPositions = { 0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1};
-  private int armPosition = 5;
+  private int armPosition = 7;
   private double[] clawPositions = { 0.0, 1.0 };
   private int clawPosition = 0;
   private double[] frontArmPositions = { 1, 0.0 };
   private int frontArmPosition = 0;
-  private double[] linSlidePositions = { 0.0, 0.7, 0.92 };
+  private double[] linSlidePositions = { 0.0, 0.7, 0.94 };
   private int linSlidePosition = 0;
   private double[] depositPositions = { 0.0, 0.4, 1.0 };
   private int depositPosition = 0;
@@ -107,6 +130,8 @@ public class AutonomousV1 extends LinearOpMode {
   private int speedScale = 3;
   private double frontArmOffset = 0; //for full extention
   boolean buttonPressed = false;
+
+  private double angle;
 
 
 
@@ -281,6 +306,7 @@ public class AutonomousV1 extends LinearOpMode {
   }
 
   private void initAll() {
+    telemetry.addData("ROTATION: ", sleeve.getPosition());
     telemetry.addData("Status", "Initializing all");
     telemetry.update();
 
@@ -292,6 +318,24 @@ public class AutonomousV1 extends LinearOpMode {
     this.initMeta();
     this.initProcesses();
     this.initPositions();
+
+    sleeve = new SleeveDetection();
+
+    int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+    camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, webcamName), cameraMonitorViewId);
+    sleeve = new SleeveDetection();
+    camera.setPipeline(sleeve);
+    camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+      @Override
+      public void onOpened()
+      {
+        camera.startStreaming(640,480, OpenCvCameraRotation.UPSIDE_DOWN);
+      }
+      @Override
+      public void onError(int errorCode) {}
+    });
+    position = sleeve.getPosition();
+    frontArm.setPosition(frontArmPositions[frontArmPosition]);
 
     telemetry.addData("Status", "Initialized all");
     telemetry.update();
@@ -319,6 +363,9 @@ public class AutonomousV1 extends LinearOpMode {
     // Drivetrain update
     this.mecanumWrapper.update();
     this.odometryWrapper.update();
+
+    //IMU Angle
+    this.angle = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
 
     // Meta update
     this.timeManager.update();
@@ -348,6 +395,10 @@ public class AutonomousV1 extends LinearOpMode {
 
     telemetry.addData("Temperature of Robot(real)", imu.getTemperature());
     telemetry.addData("Angular V", imu.getAngularVelocity());
+
+    telemetry.addData("Angle", angle);
+    telemetry.addData("ROTATION: ", sleeve.getPosition());
+
     telemetry.update();
   }
 
@@ -357,30 +408,60 @@ public class AutonomousV1 extends LinearOpMode {
     waitForStart();
     if (isStopRequested()) return;
     while (opModeIsActive()) {
+//      this.displayStats();
+//      this.updateAll();
+//      linearServo.setPosition(0.13);
+//      this.turret.setPosition(0.5);
+//      while(this.odometryWrapper.getFrontEncoderPosition() < 89000){
+//        if(this.odometryWrapper.getR() / this.degreesToTicks > 0.2 || -this.odometryWrapper.getR() / this.degreesToTicks > 0.2)
+//          this.mecanumWrapper.setPowerR(-this.odometryWrapper.getR() / this.degreesToTicks * 0.3);
+//        this.mecanumWrapper.setPowerX(0.5);
+//        this.updateAll();
+//        this.displayStats();
+//      }
+//      this.mecanumWrapper.setPowerX(0);
+//      this.mecanumWrapper.setPowerR(0);
+//
+//
+//      while(this.odometryWrapper.getR() / this.degreesToTicks > 0.2 || -this.odometryWrapper.getR() / this.degreesToTicks > 0.2){
+//        this.mecanumWrapper.setPowerR(-this.odometryWrapper.getR() / this.degreesToTicks * 0.3);
+//        updateAll();
+//        this.displayStats();
+//
+//      }
+
+
       this.displayStats();
       this.updateAll();
       linearServo.setPosition(0.13);
-      this.turret.setPosition(0.5);
-      while(this.odometryWrapper.getFrontEncoderPosition() < 89000){
-        if(this.odometryWrapper.getR() / this.degreesToTicks > 0.2 || -this.odometryWrapper.getR() / this.degreesToTicks > 0.2)
-          this.mecanumWrapper.setPowerR(-this.odometryWrapper.getR() / this.degreesToTicks * 0.3);
-        this.mecanumWrapper.setPowerX(0.5);
+      armPosition = 1;
+      moveFrontArm();
+
+      while(this.odometryWrapper.getRightEncoderPosition() < 88000){
+        frontArm.setPosition(0);
+        if(angle > 8 || angle < -8)
+          this.mecanumWrapper.setPowerR(-angle * 0.1);
+        this.mecanumWrapper.setPowerY(0.5);
         this.updateAll();
         this.displayStats();
       }
+      this.turret.setPosition(0.5);
+      frontArm.setPosition(1);
       this.mecanumWrapper.setPowerX(0);
       this.mecanumWrapper.setPowerR(0);
 
-
-      while(this.odometryWrapper.getR() / this.degreesToTicks > 0.2 || -this.odometryWrapper.getR() / this.degreesToTicks > 0.2){
-        this.mecanumWrapper.setPowerR(-this.odometryWrapper.getR() / this.degreesToTicks * 0.3);
+      while(angle < 62){
+        this.mecanumWrapper.setPowerR(-0.5);
         updateAll();
         this.displayStats();
-
+      }
+      this.mecanumWrapper.setPowerR(0);
+      while(angle < 82 && angle > 95){
+        this.mecanumWrapper.setPowerR(-(90-angle) * 0.1);
       }
       this.mecanumWrapper.setPowerR(0);
       this.displayStats();
-      armPosition = 6;
+      armPosition = 8;
       linSlidePosition = 2;
       linSlideUp(5);
       sleep(400);
@@ -388,7 +469,8 @@ public class AutonomousV1 extends LinearOpMode {
       dump();
       sleep(500);
       this.displayStats();
-      for(int i = 5; i > 0; i--){
+      for(int i = 4; i > 0; i--){
+        armPosition = 8;
         resetLinSlide();
         intakeOut(i);
         sleep(450);
@@ -400,13 +482,31 @@ public class AutonomousV1 extends LinearOpMode {
         dump();
         this.displayStats();
         sleep(600);
+        if(getRuntime() >= 23){
+          break;
+        }
       }
-
       greatReset();
-      sleep(100000);
+        if(position == SleeveDetection.ParkingPosition.LEFT){
+          this.mecanumWrapper.setPowerX(0.5);
+          sleep(1050);
+          this.mecanumWrapper.setPowerX(0);
+          sleep(5000);
+        }
+        else if(position  == SleeveDetection.ParkingPosition.CENTER){
+          this.mecanumWrapper.setPowerY(0.2);
+          sleep(200);
+          this.mecanumWrapper.setPowerY(0);
+          sleep(5000);
+        }
+        else if(position  == SleeveDetection.ParkingPosition.RIGHT){
+          this.mecanumWrapper.setPowerX(-0.5);
+          sleep(1050);
+          this.mecanumWrapper.setPowerX(0);
+          sleep(5000);
+        }
+      greatReset();
     }
-
-
   }
   private void moveClaw(){
     this.clawServo1.setPosition(this.clawPositions[clawPosition]);
